@@ -1,6 +1,7 @@
 package com.jasoncorp.oneadaycomplement;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -9,6 +10,8 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import java.util.Random;
+
 public class NotificationWorker extends Worker {
 
     private static final String TAG = "NotificationWorker";
@@ -16,11 +19,13 @@ public class NotificationWorker extends Worker {
     public static final int NOTIFICATION_ID = 0;
 
     private Context context;
+    private Random random;
 
 
     public NotificationWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
         this.context = context;
+        random = new Random();
     }
 
     @NonNull
@@ -28,13 +33,19 @@ public class NotificationWorker extends Worker {
     public Result doWork() {
         Log.d(TAG, "doWork: ");
 
-        //Todo: replace with dynamic data
-        String title = "Title";
-        String text = "text";
+        //Pull the complements from the xml
+        Resources resources = context.getResources();
+        String[] complements = resources.getStringArray(R.array.complements_array);
+
+        //Choose the complement of the day
+        int randomIndex = random.nextInt(complements.length);
+
+        String title = "Complement of the Day";
+        String text = complements[randomIndex];
 
         //Build the notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, MainActivity.NOTIFICATION_CHANNEL_ID_COMPLEMENT)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.ic_favorite_white_24dp)
                 .setContentTitle(title)
                 .setContentText(text)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);

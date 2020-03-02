@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         Data inputData = new Data.Builder().putInt(DBEventIDTag, DBEventID).build();
 
         OneTimeWorkRequest notificationWork = new OneTimeWorkRequest.Builder(NotificationWorker.class)
-                .setInitialDelay(10, TimeUnit.MILLISECONDS)
+                .setInitialDelay(1000, TimeUnit.MILLISECONDS)
                 .setInputData(inputData)
                 .addTag(WORK_TAG)
                 .build();
