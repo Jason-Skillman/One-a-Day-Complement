@@ -16,8 +16,6 @@ public class NotificationWorker extends Worker {
 
     private static final String TAG = "NotificationWorker";
 
-    public static final int NOTIFICATION_ID = 0;
-
     private Context context;
     private Random random;
 
@@ -44,15 +42,15 @@ public class NotificationWorker extends Worker {
         String text = complements[randomIndex];
 
         //Build the notification
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, MainActivity.NOTIFICATION_CHANNEL_ID_COMPLEMENT)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, context.getString(R.string.notification_channel_id_complement))
                 .setSmallIcon(R.drawable.ic_favorite_white_24dp)
                 .setContentTitle(title)
                 .setContentText(text)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                .setPriority(NotificationCompat.PRIORITY_LOW);
 
         //Start the notification
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.notify(NOTIFICATION_ID, builder.build());
+        notificationManager.notify(Integer.parseInt(context.getString(R.string.notification_id_complement)), builder.build());
 
         return Result.success();
     }
