@@ -10,7 +10,6 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Debug;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -26,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private String DBEventIDTag = "id_tag";
     private int DBEventID = 0;
 
-    private Button btnStart, btnStop;
+    private Button btnStart, btnStop, btnTime;
 
 
     @Override
@@ -36,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnStart = findViewById(R.id.btn_start);
         btnStop = findViewById(R.id.btn_stop);
+        btnTime = findViewById(R.id.btn_time);
 
         setupNotificationChannels();
     }
@@ -56,6 +56,12 @@ public class MainActivity extends AppCompatActivity {
                 cancelWork();
             }
         });
+        btnTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogTime();
+            }
+        });
     }
 
     @Override
@@ -64,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnStart.setOnClickListener(null);
         btnStop.setOnClickListener(null);
+        btnTime.setOnClickListener(null);
     }
 
     void startWork() {
@@ -84,6 +91,10 @@ public class MainActivity extends AppCompatActivity {
         Operation operation = WorkManager.getInstance(this).cancelAllWorkByTag(WORK_TAG_NOTIFICATION);
 
         Toast.makeText(this, "Complements have been turned off", Toast.LENGTH_SHORT).show();
+    }
+
+    void dialogTime() {
+
     }
 
     /**
