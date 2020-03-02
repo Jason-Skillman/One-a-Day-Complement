@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.Operation;
+import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import android.app.NotificationChannel;
@@ -78,13 +79,19 @@ public class MainActivity extends AppCompatActivity {
 
         Data inputData = new Data.Builder().putInt(DBEventIDTag, DBEventID).build();
 
-        OneTimeWorkRequest notificationWork = new OneTimeWorkRequest.Builder(NotificationWorker.class)
+        /*OneTimeWorkRequest notificationWork = new OneTimeWorkRequest.Builder(NotificationWorker.class)
+                .setInitialDelay(1000, TimeUnit.MILLISECONDS)
+                .setInputData(inputData)
+                .addTag(WORK_TAG_NOTIFICATION)
+                .build();*/
+
+        PeriodicWorkRequest workRequestNotification = new PeriodicWorkRequest.Builder(NotificationWorker.class,1, TimeUnit.HOURS)
                 .setInitialDelay(1000, TimeUnit.MILLISECONDS)
                 .setInputData(inputData)
                 .addTag(WORK_TAG_NOTIFICATION)
                 .build();
 
-        WorkManager.getInstance(this).enqueue(notificationWork);
+        WorkManager.getInstance(this).enqueue(workRequestNotification);
     }
 
     void cancelWork() {
