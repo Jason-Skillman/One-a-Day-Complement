@@ -9,7 +9,7 @@ import androidx.work.WorkerParameters;
 
 public class NotificationWorker extends Worker {
 
-    public static final String CHANNEL_ID = "";
+    //public static final String CHANNEL_ID = "";
 
     private Context context;
 
@@ -26,7 +26,7 @@ public class NotificationWorker extends Worker {
         String title = "Title";
         String text = "text";
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, MainActivity.NOTIFICATION_CHANNEL_ID_COMPLEMENT)
                 //.setSmallIcon(R.drawable.notification_icon)
                 .setContentTitle(title)
                 .setContentText(text)
