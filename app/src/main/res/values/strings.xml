@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">One a Day Complement</string>
 
+    <string name="notification_channel_id_complement">channel_complement</string>
+    <string name="notification_channel_name_complement">Complement</string>
+    <string name="notification_id_complement">0</string>
+
     <string-array name="complements_array">
         <item>This is complement 1</item>
         <item>This is complement 2</item>
