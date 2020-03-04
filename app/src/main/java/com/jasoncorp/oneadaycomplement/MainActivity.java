@@ -3,7 +3,6 @@ package com.jasoncorp.oneadaycomplement;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.OneTimeWorkRequest;
 import androidx.work.Operation;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
@@ -21,7 +20,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -39,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private AlarmManager alarmManager;
 
     private Button btnStart, btnStop, btnTime;
-    private EditText etTime;
+    private TextView tvTime;
 
 
     @Override
@@ -50,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         btnStart = findViewById(R.id.btn_start);
         btnStop = findViewById(R.id.btn_stop);
         btnTime = findViewById(R.id.btn_time);
-        etTime = findViewById(R.id.et_time);
+        tvTime = findViewById(R.id.tv_time);
 
         Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
         pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, alarmIntent, 0);
@@ -78,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         btnTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dialogTime();
+                setAlarmTime();
             }
         });
     }
@@ -150,18 +149,27 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "Alarm canceled", Toast.LENGTH_SHORT).show();
     }
 
-    void dialogTime() {
+    void setAlarmTime() {
         Calendar calendar = Calendar.getInstance();
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
+        int hour = calendar.get(Calendar.HOUR_OF_DAY) + 1;
 
         TimePickerDialog timePicker;
         timePicker = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                etTime.setText(selectedHour + ":" + selectedMinute);
+                Log.d(TAG, "onTimeSet: " + selectedHour);
+                //Find AM or PM
+                String AM_PM = "AM";
+                if(selectedHour >= 12) {
+                    AM_PM = "PM";
+                    if(selectedHour != 12) selectedHour -= 12;
+                }
+                if(selectedHour == 0) selectedHour = 12;
+
+                //Update the UI to show the alarm time
+                tvTime.setText(selectedHour + ":" + selectedMinute + "0 " + AM_PM);
             }
-        }, hour, minute, false);
+        }, hour, 0, false);
         timePicker.setTitle("Select Time");
         timePicker.show();
     }
