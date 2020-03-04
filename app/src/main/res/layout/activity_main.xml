@@ -53,21 +53,13 @@
 
             <TextView
                 android:id="@+id/textView"
-                android:layout_width="240dp"
-                android:layout_height="wrap_content"
-                android:text="Complements current set for:"
-                android:textSize="18sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <Button
-                android:id="@+id/btn_time"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:text="Set Time"
+                android:text="Complements current set for:"
+                android:textAlignment="center"
+                android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/textView"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -78,21 +70,19 @@
                 android:text="9:00am"
                 android:textAlignment="center"
                 android:textSize="30sp"
-                app:layout_constraintEnd_toStartOf="@+id/btn_time"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView" />
 
-            <!--
-
-            <EditText
-                android:id="@+id/et_time"
+            <Button
+                android:id="@+id/btn_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="time"
+                android:layout_marginTop="8dp"
+                android:text="Set Time"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btn_time" />-->
+                app:layout_constraintTop_toBottomOf="@+id/tv_time" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
