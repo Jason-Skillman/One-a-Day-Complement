@@ -126,8 +126,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startAt10() {
+        //20 minutes
         int interval = 1000 * 60 * 20;
-        int interval2 = 1000 * 60 * 60 * 24;
+        //1 day
+        int intervalOneADay = 1000 * 60 * 60 * 24;
 
         /* Set the alarm to start at 10:30 AM */
         Calendar calendar = Calendar.getInstance();
@@ -135,11 +137,12 @@ public class MainActivity extends AppCompatActivity {
         calendar.set(Calendar.HOUR_OF_DAY, 10);
         calendar.set(Calendar.MINUTE, 41);
 
-        /* Repeating on every 20 minutes interval */
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), interval, pendingIntent);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), intervalOneADay, pendingIntent);
 
         Toast.makeText(this, "Alarm has been Set", Toast.LENGTH_SHORT).show();
     }
+
+    //https://www.stacktips.com/tutorials/android/repeat-alarm-example-in-android
 
     public void cancelAlarm() {
         alarmManager.cancel(pendingIntent);
