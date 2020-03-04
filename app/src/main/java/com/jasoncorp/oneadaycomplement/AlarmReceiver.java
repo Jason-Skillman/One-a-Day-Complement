@@ -15,8 +15,6 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Toast.makeText(context, "I'm running", Toast.LENGTH_SHORT).show();
-
         //Pull the complements from the xml
         Resources resources = context.getResources();
         String[] complements = resources.getStringArray(R.array.complements_array);

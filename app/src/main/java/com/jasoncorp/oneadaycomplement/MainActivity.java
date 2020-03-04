@@ -1,11 +1,6 @@
 package com.jasoncorp.oneadaycomplement;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.work.Data;
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.Operation;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
 
 import android.app.AlarmManager;
 import android.app.NotificationChannel;
@@ -14,7 +9,6 @@ import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,21 +19,16 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import java.text.ParseException;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
-    public static final String WORK_TAG_NOTIFICATION = "work_tag_notification";
-    private String DBEventIDTag = "id_tag";
-    private int DBEventID = 0;
-
     private PendingIntent pendingIntent;
     private AlarmManager alarmManager;
     private Date timerDate;
+    private int timerHours, timerMinutes;
 
     private Button btnStart, btnStop, btnTime;
     private TextView tvTime;
@@ -70,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startAt10();
+                startAlarm();
             }
         });
         btnStop.setOnClickListener(new View.OnClickListener() {
@@ -96,62 +85,28 @@ public class MainActivity extends AppCompatActivity {
         btnTime.setOnClickListener(null);
     }
 
-    void startWork() {
-        Log.d(TAG, "startWork: ");
-
-        Data inputData = new Data.Builder().putInt(DBEventIDTag, DBEventID).build();
-
-        /*OneTimeWorkRequest notificationWork = new OneTimeWorkRequest.Builder(NotificationWorker.class)
-                .setInitialDelay(1000, TimeUnit.MILLISECONDS)
-                .setInputData(inputData)
-                .addTag(WORK_TAG_NOTIFICATION)
-                .build();*/
-
-        PeriodicWorkRequest workRequestNotification = new PeriodicWorkRequest.Builder(NotificationWorker.class,15, TimeUnit.MINUTES)
-                .setInitialDelay(1000, TimeUnit.MILLISECONDS)
-                .setInputData(inputData)
-                .addTag(WORK_TAG_NOTIFICATION)
-                .build();
-
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(WORK_TAG_NOTIFICATION, ExistingPeriodicWorkPolicy.REPLACE, workRequestNotification);
-    }
-
-    void cancelWork() {
-        Operation operation = WorkManager.getInstance(this).cancelAllWorkByTag(WORK_TAG_NOTIFICATION);
-
-        Toast.makeText(this, "Complements have been turned off", Toast.LENGTH_SHORT).show();
-    }
-
-    void startTimer() {
-        int interval = 8000;
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
-
-        Toast.makeText(this, "Alarm has been Set", Toast.LENGTH_SHORT).show();
-    }
-
-    public void startAt10() {
-        //20 minutes
-        int interval = 1000 * 60 * 20;
+    public void startAlarm() {
         //1 day
         int intervalOneADay = 1000 * 60 * 60 * 24;
+        //20 minutes
+        //int interval = 1000 * 60 * 20;
 
-        /* Set the alarm to start at 10:30 AM */
+        //Set the time for the alarm
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.set(Calendar.HOUR_OF_DAY, 10);
-        calendar.set(Calendar.MINUTE, 41);
+        calendar.set(Calendar.HOUR_OF_DAY, timerHours);
+        calendar.set(Calendar.MINUTE, timerMinutes);
 
+        //Start the alarm
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), intervalOneADay, pendingIntent);
 
-        Toast.makeText(this, "Alarm has been Set", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Complements have been turned on", Toast.LENGTH_SHORT).show();
     }
-
-    //https://www.stacktips.com/tutorials/android/repeat-alarm-example-in-android
 
     public void cancelAlarm() {
         alarmManager.cancel(pendingIntent);
 
-        Toast.makeText(this, "Alarm canceled", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Complements have been turned off", Toast.LENGTH_SHORT).show();
     }
 
     void setAlarmTime() {
@@ -172,8 +127,11 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if(hour == 0) hour = 12;
 
+                String minutesStr = "" + selectedMinute;
+                if(selectedMinute < 10) minutesStr += 0;
+
                 //Update the UI to show the alarm time
-                tvTime.setText(hour + ":" + selectedMinute + "0 " + AM_PM);
+                tvTime.setText(hour + ":" + minutesStr + " " + AM_PM);
 
                 //Convert the time in string format
                 StringBuilder stringBuilder = new StringBuilder();
@@ -183,6 +141,8 @@ public class MainActivity extends AppCompatActivity {
 
                 //Save the time in the user preferences
                 UserPreferencesManager.getInstance().setAlarmTime(MainActivity.this, stringBuilder.toString());
+
+                Toast.makeText(MainActivity.this, "Alarm has been set for: " + hour + ":" + minutesStr + " " + AM_PM, Toast.LENGTH_SHORT).show();
             }
         }, hour, 0, false);
         timePicker.setTitle("Select Time");
@@ -206,9 +166,11 @@ public class MainActivity extends AppCompatActivity {
         String hoursStr = "" + hours;
         if(hours == 0) hoursStr = "" + (hours + 12);
         else if(hours > 12) hoursStr = "" + (hours - 12);
+        timerHours = Integer.parseInt(hoursStr);
 
         String minutesStr = "" + minutes;
         if(minutes < 10) minutesStr += "0";
+        timerMinutes = Integer.parseInt(minutesStr);
 
         tvTime.setText(hoursStr + ":" + minutesStr + " " + AM_PM);
     }
