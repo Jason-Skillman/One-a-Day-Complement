@@ -14,6 +14,7 @@ import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,6 +25,8 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import java.text.ParseException;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
@@ -36,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
     private PendingIntent pendingIntent;
     private AlarmManager alarmManager;
+    private Date timerDate;
 
     private Button btnStart, btnStop, btnTime;
     private TextView tvTime;
@@ -55,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
         pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, alarmIntent, 0);
         alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
 
+        setDefaultTime();
         setupNotificationChannels();
     }
 
@@ -160,18 +165,52 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "onTimeSet: " + selectedHour);
                 //Find AM or PM
                 String AM_PM = "AM";
-                if(selectedHour >= 12) {
+                int hour = selectedHour;
+                if(hour >= 12) {
                     AM_PM = "PM";
-                    if(selectedHour != 12) selectedHour -= 12;
+                    if(hour != 12) hour -= 12;
                 }
-                if(selectedHour == 0) selectedHour = 12;
+                if(hour == 0) hour = 12;
 
                 //Update the UI to show the alarm time
-                tvTime.setText(selectedHour + ":" + selectedMinute + "0 " + AM_PM);
+                tvTime.setText(hour + ":" + selectedMinute + "0 " + AM_PM);
+
+                //Convert the time in string format
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append(selectedHour)
+                        .append(":")
+                        .append(selectedMinute);
+
+                //Save the time in the user preferences
+                UserPreferencesManager.getInstance().setAlarmTime(MainActivity.this, stringBuilder.toString());
             }
         }, hour, 0, false);
         timePicker.setTitle("Select Time");
         timePicker.show();
+    }
+
+    public void setDefaultTime() {
+        Date alarmTime = UserPreferencesManager.getInstance().getAlarmTime(MainActivity.this);
+
+        timerDate = alarmTime;
+
+        //Update the UI to show the alarm time
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(timerDate);
+        int hours = calendar.get(Calendar.HOUR_OF_DAY);
+        int minutes = calendar.get(Calendar.MINUTE);
+
+        String AM_PM = "AM";
+        if(hours >= 12) AM_PM = "PM";
+
+        String hoursStr = "" + hours;
+        if(hours == 0) hoursStr = "" + (hours + 12);
+        else if(hours > 12) hoursStr = "" + (hours - 12);
+
+        String minutesStr = "" + minutes;
+        if(minutes < 10) minutesStr += "0";
+
+        tvTime.setText(hoursStr + ":" + minutesStr + " " + AM_PM);
     }
 
     /**
