@@ -2,6 +2,7 @@ package com.jasoncorp.oneadaycomplement;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.work.Data;
+import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.Operation;
 import androidx.work.PeriodicWorkRequest;
@@ -9,11 +10,15 @@ import androidx.work.WorkManager;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.TimePickerDialog;
+import android.icu.util.Calendar;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.util.concurrent.TimeUnit;
@@ -27,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private int DBEventID = 0;
 
     private Button btnStart, btnStop, btnTime;
+    private EditText etTime;
 
 
     @Override
@@ -37,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
         btnStart = findViewById(R.id.btn_start);
         btnStop = findViewById(R.id.btn_stop);
         btnTime = findViewById(R.id.btn_time);
+        etTime = findViewById(R.id.et_time);
 
         setupNotificationChannels();
     }
@@ -85,13 +92,13 @@ public class MainActivity extends AppCompatActivity {
                 .addTag(WORK_TAG_NOTIFICATION)
                 .build();*/
 
-        PeriodicWorkRequest workRequestNotification = new PeriodicWorkRequest.Builder(NotificationWorker.class,1, TimeUnit.HOURS)
+        PeriodicWorkRequest workRequestNotification = new PeriodicWorkRequest.Builder(NotificationWorker.class,15, TimeUnit.MINUTES)
                 .setInitialDelay(1000, TimeUnit.MILLISECONDS)
                 .setInputData(inputData)
                 .addTag(WORK_TAG_NOTIFICATION)
                 .build();
 
-        WorkManager.getInstance(this).enqueue(workRequestNotification);
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(WORK_TAG_NOTIFICATION, ExistingPeriodicWorkPolicy.REPLACE, workRequestNotification);
     }
 
     void cancelWork() {
@@ -101,7 +108,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void dialogTime() {
+        Calendar calendar = Calendar.getInstance();
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
 
+        TimePickerDialog timePicker;
+        timePicker = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+                etTime.setText(selectedHour + ":" + selectedMinute);
+            }
+        }, hour, minute, false);
+        timePicker.setTitle("Select Time");
+        timePicker.show();
     }
 
     /**
