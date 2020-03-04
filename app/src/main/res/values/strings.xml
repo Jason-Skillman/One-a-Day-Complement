@@ -6,8 +6,9 @@
     <string name="notification_id_complement">0</string>
 
     <string-array name="complements_array">
-        <item>This is complement 1</item>
-        <item>This is complement 2</item>
-        <item>This is complement 3</item>
+        <item>You are a super star!</item>
+        <item>Your day is going to be great.</item>
+        <item>I sense  that you will have good fortune today.</item>
+        <item>Today is going to be a great day.</item>
     </string-array>
 </resources>
