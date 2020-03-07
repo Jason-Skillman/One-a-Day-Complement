@@ -32,11 +32,13 @@ public class MainActivity extends AppCompatActivity {
 
     private PendingIntent pendingIntent;
     private AlarmManager alarmManager;
-    private Date timerDate;
+
+    private Date alarmDate;
+    private boolean alarmStatus;
     private int timerHours, timerMinutes;
 
-    private Button btnStart, btnStop, btnTime;
-    private TextView tvTime;
+    private Button btnSetTime, btnStart, btnStop;
+    private TextView tvStatus, tvTime;
 
 
     @Override
@@ -44,16 +46,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        tvStatus = findViewById(R.id.tv_status);
+        tvTime = findViewById(R.id.tv_time);
+        btnSetTime = findViewById(R.id.btn_time);
         btnStart = findViewById(R.id.btn_start);
         btnStop = findViewById(R.id.btn_stop);
-        btnTime = findViewById(R.id.btn_time);
-        tvTime = findViewById(R.id.tv_time);
 
         Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
         pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, alarmIntent, 0);
         alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
 
-        setDefaultTime();
+        setupActivityDefaults();
         setupNotificationChannels();
     }
 
@@ -75,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Complements have been turned off", Toast.LENGTH_SHORT).show();
             }
         });
-        btnTime.setOnClickListener(new View.OnClickListener() {
+        btnSetTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 setAlarmTime();
@@ -89,11 +92,47 @@ public class MainActivity extends AppCompatActivity {
 
         btnStart.setOnClickListener(null);
         btnStop.setOnClickListener(null);
-        btnTime.setOnClickListener(null);
+        btnSetTime.setOnClickListener(null);
+    }
+
+    /**
+     * Setup the activity based on the user preferences
+     */
+    public void setupActivityDefaults() {
+        //Get the user pref date
+        alarmDate = UserPreferencesManager.getInstance().getAlarmTime(MainActivity.this);
+        //Get the user pref status
+        alarmStatus = UserPreferencesManager.getInstance().getAlarmStatus(MainActivity.this);
+
+        //Set the alarm status
+        setAlarmStatus(alarmStatus);
+
+
+
+
+        //Update the UI to show the alarm time
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(alarmDate);
+        int hours = calendar.get(Calendar.HOUR_OF_DAY);
+        int minutes = calendar.get(Calendar.MINUTE);
+
+        String AM_PM = "AM";
+        if(hours >= 12) AM_PM = "PM";
+
+        String hoursStr = "" + hours;
+        if(hours == 0) hoursStr = "" + (hours + 12);
+        else if(hours > 12) hoursStr = "" + (hours - 12);
+        timerHours = Integer.parseInt(hoursStr);
+
+        String minutesStr = "" + minutes;
+        if(minutes < 10) minutesStr += "0";
+        timerMinutes = Integer.parseInt(minutesStr);
+
+        tvTime.setText(hoursStr + ":" + minutesStr + " " + AM_PM);
     }
 
     public void startAlarm() {
-        UserPreferencesManager.getInstance().setAlarmStatus(MainActivity.this, true);
+        setAlarmStatus(true);
 
         //Set the time for the alarm
         Calendar calendar = Calendar.getInstance();
@@ -113,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void cancelAlarm() {
-        UserPreferencesManager.getInstance().setAlarmStatus(MainActivity.this, false);
+        setAlarmStatus(false);
 
         if(alarmManager != null)
             alarmManager.cancel(pendingIntent);
@@ -169,30 +208,16 @@ public class MainActivity extends AppCompatActivity {
         timePicker.show();
     }
 
-    public void setDefaultTime() {
-        Date alarmTime = UserPreferencesManager.getInstance().getAlarmTime(MainActivity.this);
+    /**
+     * Sets the alarm status in user preferences and updates the UI
+     * @param value the status
+     */
+    private void setAlarmStatus(boolean value) {
+        UserPreferencesManager.getInstance().setAlarmStatus(MainActivity.this, value);
 
-        timerDate = alarmTime;
-
-        //Update the UI to show the alarm time
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(timerDate);
-        int hours = calendar.get(Calendar.HOUR_OF_DAY);
-        int minutes = calendar.get(Calendar.MINUTE);
-
-        String AM_PM = "AM";
-        if(hours >= 12) AM_PM = "PM";
-
-        String hoursStr = "" + hours;
-        if(hours == 0) hoursStr = "" + (hours + 12);
-        else if(hours > 12) hoursStr = "" + (hours - 12);
-        timerHours = Integer.parseInt(hoursStr);
-
-        String minutesStr = "" + minutes;
-        if(minutes < 10) minutesStr += "0";
-        timerMinutes = Integer.parseInt(minutesStr);
-
-        tvTime.setText(hoursStr + ":" + minutesStr + " " + AM_PM);
+        //Show alarm status
+        String statusStr = value ? "On" : "Off";
+        tvStatus.setText(statusStr);
     }
 
     /**

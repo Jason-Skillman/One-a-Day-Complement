@@ -30,7 +30,7 @@ public class UserPreferencesManager {
         SharedPreferences prefs = context.getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE);
 
         //Read key value
-        String result = prefs.getString(ALARM_TIME, "9:00");
+        String result = prefs.getString(ALARM_TIME, "8:00");
 
         //Format String to Date
         Date date = null;
@@ -70,7 +70,7 @@ public class UserPreferencesManager {
         SharedPreferences.Editor editor = prefs.edit();
 
         //Write key value
-        editor.putBoolean(ALARM_TIME, value);
+        editor.putBoolean(ALARM_STATUS, value);
         editor.apply();
     }
 
