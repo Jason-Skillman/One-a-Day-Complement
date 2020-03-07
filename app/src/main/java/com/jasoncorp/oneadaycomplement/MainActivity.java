@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         btnSetTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setAlarmTimeButton();
+                onClickSetTime();
             }
         });
     }
@@ -112,6 +112,27 @@ public class MainActivity extends AppCompatActivity {
         int minute = calendar.get(Calendar.MINUTE);
 
         setAlarmTime(hour, minute);
+    }
+
+    void onClickSetTime() {
+        final Calendar calendar = Calendar.getInstance();
+        int hourDisplay = calendar.get(Calendar.HOUR_OF_DAY) + 1;
+
+        TimePickerDialog timePicker;
+        timePicker = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+
+                setAlarmTime(selectedHour, selectedMinute);
+
+                Toast.makeText(MainActivity.this, "Alarm has been set for: " + normalizeHour(selectedHour) + ":" + selectedMinute + " " + getAM_PM(selectedHour), Toast.LENGTH_SHORT).show();
+
+                //cancelAlarm();
+                //startAlarm();
+            }
+        }, hourDisplay, 0, false);
+        timePicker.setTitle("Select Time");
+        timePicker.show();
     }
 
     public void startAlarm() {
@@ -148,30 +169,7 @@ public class MainActivity extends AppCompatActivity {
                 PackageManager.DONT_KILL_APP);
     }
 
-    void setAlarmTimeButton() {
-        final Calendar calendar = Calendar.getInstance();
-        int hourDisplay = calendar.get(Calendar.HOUR_OF_DAY) + 1;
 
-        TimePickerDialog timePicker;
-        timePicker = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-
-                setAlarmTime(selectedHour, selectedMinute);
-
-                //Find AM or PM
-                String AM_PM = "AM";
-                if(selectedHour >= 12) AM_PM = "PM";
-
-                Toast.makeText(MainActivity.this, "Alarm has been set for: " + normalizeHour(selectedHour) + ":" + selectedMinute + " " + AM_PM, Toast.LENGTH_SHORT).show();
-
-                //cancelAlarm();
-                //startAlarm();
-            }
-        }, hourDisplay, 0, false);
-        timePicker.setTitle("Select Time");
-        timePicker.show();
-    }
 
     /**
      * Sets the alarm status in user preferences and updates the UI
@@ -200,16 +198,12 @@ public class MainActivity extends AppCompatActivity {
         String minuteStr = "" + minute;
         if(minute == 0) minuteStr += "0";
 
-        //Find AM or PM
-        String AM_PM = "AM";
-        if(hourMilitary >= 12) AM_PM = "PM";
-
         //Update UI with alarm time
-        tvTime.setText("" + hour + ":" + minuteStr + " " + AM_PM);
+        tvTime.setText("" + hour + ":" + minuteStr + " " + getAM_PM(hourMilitary));
     }
 
     /**
-     * Converts a military hour to a normal hour
+     * Converts military hour to a normal hour
      * @param hourMilitary the military hour to convert
      * @return normalized hour
      */
@@ -218,6 +212,17 @@ public class MainActivity extends AppCompatActivity {
         if(hour == 0) hour = 12;
         else if(hour > 12) hour -= 12;
         return hour;
+    }
+
+    /**
+     * Finds if hour is in AM or PM time
+     * @param hourMilitary the military hour
+     * @return AM or PM as a String
+     */
+    private String getAM_PM(int hourMilitary) {
+        String AM_PM = "AM";
+        if(hourMilitary >= 12) AM_PM = "PM";
+        return AM_PM;
     }
 
     /**
