@@ -33,6 +33,8 @@ public class AlarmReceiver extends BroadcastReceiver {
                 .setSmallIcon(R.drawable.ic_favorite_white_24dp)
                 .setContentTitle(title)
                 .setContentText(text)
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(text))
                 .setPriority(NotificationCompat.PRIORITY_LOW);
 
         //Start the notification
