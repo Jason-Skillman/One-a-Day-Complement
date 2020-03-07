@@ -128,14 +128,18 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Alarm has been set for: " + normalizeHour(selectedHour) + ":" +
                         getReadableMinute(selectedMinute) + " " + getAM_PM(selectedHour), Toast.LENGTH_SHORT).show();
 
-                //cancelAlarm();
-                //startAlarm();
+                boolean value = UserPreferencesManager.getInstance().getAlarmStatus(MainActivity.this);
+                if(value) cancelAlarm();
+                startAlarm();
             }
         }, hourDisplay, 0, false);
         timePicker.setTitle("Select Time");
         timePicker.show();
     }
 
+    /**
+     * Starts the alarm
+     */
     public void startAlarm() {
         setAlarmStatus(true);
 
@@ -156,6 +160,9 @@ public class MainActivity extends AppCompatActivity {
                 PackageManager.DONT_KILL_APP);
     }
 
+    /**
+     * Cancels the alarm
+     */
     public void cancelAlarm() {
         setAlarmStatus(false);
 
@@ -169,8 +176,6 @@ public class MainActivity extends AppCompatActivity {
                 PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                 PackageManager.DONT_KILL_APP);
     }
-
-
 
     /**
      * Sets the alarm status in user preferences and updates the UI
