@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         btnSetTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setAlarmTime();
+                setAlarmTimeButton();
             }
         });
     }
@@ -165,45 +165,23 @@ public class MainActivity extends AppCompatActivity {
                 PackageManager.DONT_KILL_APP);
     }
 
-    void setAlarmTime() {
-        Calendar calendar = Calendar.getInstance();
-        int hour = calendar.get(Calendar.HOUR_OF_DAY) + 1;
+    void setAlarmTimeButton() {
+        final Calendar calendar = Calendar.getInstance();
+        int hourDisplay = calendar.get(Calendar.HOUR_OF_DAY) + 1;
 
         TimePickerDialog timePicker;
         timePicker = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                Log.d(TAG, "onTimeSet: " + selectedHour);
-                //Find AM or PM
-                String AM_PM = "AM";
-                int hour = selectedHour;
-                if(hour >= 12) {
-                    AM_PM = "PM";
-                    if(hour != 12) hour -= 12;
-                }
-                if(hour == 0) hour = 12;
 
-                String minutesStr = "" + selectedMinute;
-                if(selectedMinute < 10) minutesStr += 0;
+                setAlarmTime(selectedHour, selectedMinute);
 
-                //Update the UI to show the alarm time
-                tvTime.setText(hour + ":" + minutesStr + " " + AM_PM);
+                //Toast.makeText(MainActivity.this, "Alarm has been set for: " + hour + ":" + minutesStr + " " + AM_PM, Toast.LENGTH_SHORT).show();
 
-                //Convert the time in string format
-                StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.append(selectedHour)
-                        .append(":")
-                        .append(selectedMinute);
-
-                //Save the time in the user preferences
-                UserPreferencesManager.getInstance().setAlarmTime(MainActivity.this, stringBuilder.toString());
-
-                Toast.makeText(MainActivity.this, "Alarm has been set for: " + hour + ":" + minutesStr + " " + AM_PM, Toast.LENGTH_SHORT).show();
-
-                cancelAlarm();
-                startAlarm();
+                //cancelAlarm();
+                //startAlarm();
             }
-        }, hour, 0, false);
+        }, hourDisplay, 0, false);
         timePicker.setTitle("Select Time");
         timePicker.show();
     }
@@ -215,13 +193,38 @@ public class MainActivity extends AppCompatActivity {
     private void setAlarmStatus(boolean value) {
         UserPreferencesManager.getInstance().setAlarmStatus(MainActivity.this, value);
 
-        //Show alarm status
+        //Update UI with alarm status
         String statusStr = value ? "On" : "Off";
         tvStatus.setText(statusStr);
     }
 
     /**
-     * Sets up the default notification channel for API 26+
+     * Sets the alarm time in user preferences and updates the UI
+     * @param hourMilitary
+     * @param minute
+     */
+    private void setAlarmTime(int hourMilitary, int minute) {
+        UserPreferencesManager.getInstance().setAlarmTime(MainActivity.this, hourMilitary + ":" + minute);
+
+        //Convert military hour to normal hour
+        int hour = hourMilitary;
+        if(hour == 0) hour = 12;
+        else if(hour > 12) hour -= 12;
+
+        //Convert minute to readable string
+        String minuteStr = "" + minute;
+        if(minute == 0) minuteStr += "0";
+
+        //Find AM or PM
+        String AM_PM = "AM";
+        if(hourMilitary >= 12) AM_PM = "PM";
+
+        //Update UI with alarm time
+        tvTime.setText("" + hour + ":" + minuteStr + " " + AM_PM);
+    }
+
+    /**
+     * Setup the default notification channel for API 26+
      */
     public void setupNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
