@@ -125,7 +125,8 @@ public class MainActivity extends AppCompatActivity {
 
                 setAlarmTime(selectedHour, selectedMinute);
 
-                Toast.makeText(MainActivity.this, "Alarm has been set for: " + normalizeHour(selectedHour) + ":" + selectedMinute + " " + getAM_PM(selectedHour), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Alarm has been set for: " + normalizeHour(selectedHour) + ":" +
+                        getReadableMinute(selectedMinute) + " " + getAM_PM(selectedHour), Toast.LENGTH_SHORT).show();
 
                 //cancelAlarm();
                 //startAlarm();
@@ -191,15 +192,10 @@ public class MainActivity extends AppCompatActivity {
     private void setAlarmTime(int hourMilitary, int minute) {
         UserPreferencesManager.getInstance().setAlarmTime(MainActivity.this, hourMilitary + ":" + minute);
 
-        //Convert military hour to normal hour
-        int hour = normalizeHour(hourMilitary);
-
-        //Convert minute to readable string
-        String minuteStr = "" + minute;
-        if(minute == 0) minuteStr += "0";
-
         //Update UI with alarm time
-        tvTime.setText("" + hour + ":" + minuteStr + " " + getAM_PM(hourMilitary));
+        tvTime.setText("" + normalizeHour(hourMilitary) + ":" +
+                getReadableMinute(minute) + " " +
+                getAM_PM(hourMilitary));
     }
 
     /**
@@ -212,6 +208,17 @@ public class MainActivity extends AppCompatActivity {
         if(hour == 0) hour = 12;
         else if(hour > 12) hour -= 12;
         return hour;
+    }
+
+    /**
+     * Converts minute to a readable minute
+     * @param minute the minute to convert
+     * @return readable minute as a String
+     */
+    private String getReadableMinute(int minute) {
+        String minuteStr = "" + minute;
+        if(minute == 0) minuteStr += "0";
+        return minuteStr;
     }
 
     /**
