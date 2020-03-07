@@ -14,7 +14,6 @@ import android.content.pm.PackageManager;
 import android.icu.util.Calendar;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -99,36 +98,20 @@ public class MainActivity extends AppCompatActivity {
      * Setup the activity based on the user preferences
      */
     public void setupActivityDefaults() {
-        //Get the user pref date
-        alarmDate = UserPreferencesManager.getInstance().getAlarmTime(MainActivity.this);
-        //Get the user pref status
+        //Get and set the alarm status
         alarmStatus = UserPreferencesManager.getInstance().getAlarmStatus(MainActivity.this);
-
-        //Set the alarm status
         setAlarmStatus(alarmStatus);
 
 
+        //Get and set the alarm time
+        alarmDate = UserPreferencesManager.getInstance().getAlarmTime(MainActivity.this);
 
-
-        //Update the UI to show the alarm time
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(alarmDate);
-        int hours = calendar.get(Calendar.HOUR_OF_DAY);
-        int minutes = calendar.get(Calendar.MINUTE);
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
 
-        String AM_PM = "AM";
-        if(hours >= 12) AM_PM = "PM";
-
-        String hoursStr = "" + hours;
-        if(hours == 0) hoursStr = "" + (hours + 12);
-        else if(hours > 12) hoursStr = "" + (hours - 12);
-        timerHours = Integer.parseInt(hoursStr);
-
-        String minutesStr = "" + minutes;
-        if(minutes < 10) minutesStr += "0";
-        timerMinutes = Integer.parseInt(minutesStr);
-
-        tvTime.setText(hoursStr + ":" + minutesStr + " " + AM_PM);
+        setAlarmTime(hour, minute);
     }
 
     public void startAlarm() {
@@ -176,7 +159,11 @@ public class MainActivity extends AppCompatActivity {
 
                 setAlarmTime(selectedHour, selectedMinute);
 
-                //Toast.makeText(MainActivity.this, "Alarm has been set for: " + hour + ":" + minutesStr + " " + AM_PM, Toast.LENGTH_SHORT).show();
+                //Find AM or PM
+                String AM_PM = "AM";
+                if(selectedHour >= 12) AM_PM = "PM";
+
+                Toast.makeText(MainActivity.this, "Alarm has been set for: " + normalizeHour(selectedHour) + ":" + selectedMinute + " " + AM_PM, Toast.LENGTH_SHORT).show();
 
                 //cancelAlarm();
                 //startAlarm();
@@ -207,9 +194,7 @@ public class MainActivity extends AppCompatActivity {
         UserPreferencesManager.getInstance().setAlarmTime(MainActivity.this, hourMilitary + ":" + minute);
 
         //Convert military hour to normal hour
-        int hour = hourMilitary;
-        if(hour == 0) hour = 12;
-        else if(hour > 12) hour -= 12;
+        int hour = normalizeHour(hourMilitary);
 
         //Convert minute to readable string
         String minuteStr = "" + minute;
@@ -221,6 +206,18 @@ public class MainActivity extends AppCompatActivity {
 
         //Update UI with alarm time
         tvTime.setText("" + hour + ":" + minuteStr + " " + AM_PM);
+    }
+
+    /**
+     * Converts a military hour to a normal hour
+     * @param hourMilitary the military hour to convert
+     * @return normalized hour
+     */
+    private int normalizeHour(int hourMilitary) {
+        int hour = hourMilitary;
+        if(hour == 0) hour = 12;
+        else if(hour > 12) hour -= 12;
+        return hour;
     }
 
     /**
