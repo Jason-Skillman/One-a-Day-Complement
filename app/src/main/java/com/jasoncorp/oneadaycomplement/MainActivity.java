@@ -7,8 +7,10 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.icu.util.Calendar;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,6 +20,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
+import com.jasoncorp.oneadaycomplement.receivers.AlarmReceiver;
+import com.jasoncorp.oneadaycomplement.receivers.BootReceiver;
 
 import java.util.Date;
 
@@ -60,12 +65,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startAlarm();
+                Toast.makeText(MainActivity.this, "Complements have been turned on", Toast.LENGTH_SHORT).show();
             }
         });
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 cancelAlarm();
+                Toast.makeText(MainActivity.this, "Complements have been turned off", Toast.LENGTH_SHORT).show();
             }
         });
         btnTime.setOnClickListener(new View.OnClickListener() {
@@ -86,10 +93,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startAlarm() {
-        //1 day
-        int intervalOneADay = 1000 * 60 * 60 * 24;
-        //20 minutes
-        //int interval = 1000 * 60 * 20;
+        UserPreferencesManager.getInstance().setAlarmStatus(MainActivity.this, true);
 
         //Set the time for the alarm
         Calendar calendar = Calendar.getInstance();
@@ -98,15 +102,28 @@ public class MainActivity extends AppCompatActivity {
         calendar.set(Calendar.MINUTE, timerMinutes);
 
         //Start the alarm
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), intervalOneADay, pendingIntent);
+        alarmManager.setRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
 
-        Toast.makeText(this, "Complements have been turned on", Toast.LENGTH_SHORT).show();
+        //Turn on boot receiver
+        ComponentName receiver = new ComponentName(MainActivity.this, BootReceiver.class);
+        PackageManager pm = getPackageManager();
+        pm.setComponentEnabledSetting(receiver,
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                PackageManager.DONT_KILL_APP);
     }
 
     public void cancelAlarm() {
-        alarmManager.cancel(pendingIntent);
+        UserPreferencesManager.getInstance().setAlarmStatus(MainActivity.this, false);
 
-        Toast.makeText(this, "Complements have been turned off", Toast.LENGTH_SHORT).show();
+        if(alarmManager != null)
+            alarmManager.cancel(pendingIntent);
+
+        //Turn off boot receiver
+        ComponentName receiver = new ComponentName(MainActivity.this, BootReceiver.class);
+        PackageManager pm = getPackageManager();
+        pm.setComponentEnabledSetting(receiver,
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                PackageManager.DONT_KILL_APP);
     }
 
     void setAlarmTime() {
@@ -143,6 +160,9 @@ public class MainActivity extends AppCompatActivity {
                 UserPreferencesManager.getInstance().setAlarmTime(MainActivity.this, stringBuilder.toString());
 
                 Toast.makeText(MainActivity.this, "Alarm has been set for: " + hour + ":" + minutesStr + " " + AM_PM, Toast.LENGTH_SHORT).show();
+
+                cancelAlarm();
+                startAlarm();
             }
         }, hour, 0, false);
         timePicker.setTitle("Select Time");

@@ -1,4 +1,4 @@
-package com.jasoncorp.oneadaycomplement;
+package com.jasoncorp.oneadaycomplement.receivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -8,6 +8,8 @@ import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+
+import com.jasoncorp.oneadaycomplement.R;
 
 import java.util.Random;
 

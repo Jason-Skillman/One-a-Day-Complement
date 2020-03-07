@@ -14,6 +14,7 @@ public class UserPreferencesManager {
     private static final String FILE_NAME = "UserPreferences";
 
     private static final String ALARM_TIME = "alarm_time";
+    private static final String ALARM_STATUS = "alarm_status";
 
 
     private UserPreferencesManager() { }
@@ -50,6 +51,26 @@ public class UserPreferencesManager {
 
         //Write key value
         editor.putString(ALARM_TIME, value);
+        editor.apply();
+    }
+
+    public boolean getAlarmStatus(Context context) {
+        //Create the shared prefs
+        SharedPreferences prefs = context.getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE);
+
+        //Read key value
+        boolean result = prefs.getBoolean(ALARM_STATUS, false);
+
+        return result;
+    }
+
+    public void setAlarmStatus(Context context, boolean value) {
+        //Create the shared prefs
+        SharedPreferences prefs = context.getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+
+        //Write key value
+        editor.putBoolean(ALARM_TIME, value);
         editor.apply();
     }
 
