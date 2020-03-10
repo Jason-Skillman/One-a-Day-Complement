@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
@@ -14,6 +15,9 @@ import com.jasoncorp.oneadaycomplement.R;
 import java.util.Random;
 
 public class AlarmReceiver extends BroadcastReceiver {
+
+    private static final String TAG = "AlarmReceiver";
+
 
     @Override
     public void onReceive(Context context, Intent intent) {
