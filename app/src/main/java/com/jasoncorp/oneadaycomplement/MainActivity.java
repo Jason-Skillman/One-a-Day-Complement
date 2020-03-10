@@ -14,6 +14,7 @@ import android.content.pm.PackageManager;
 import android.icu.util.Calendar;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -146,11 +147,11 @@ public class MainActivity extends AppCompatActivity {
         //Set the time for the alarm
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) + 1);
         calendar.set(Calendar.HOUR_OF_DAY, timerHours);
         calendar.set(Calendar.MINUTE, timerMinutes);
 
-        //Start the alarm
-        alarmManager.setRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
 
         //Turn on boot receiver
         ComponentName receiver = new ComponentName(MainActivity.this, BootReceiver.class);
