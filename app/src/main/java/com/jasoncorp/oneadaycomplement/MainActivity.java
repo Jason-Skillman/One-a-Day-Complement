@@ -35,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
 
     private Date alarmDate;
     private boolean alarmStatus;
-    private int timerHours, timerMinutes;
 
     private Button btnSetTime, btnStart, btnStop;
     private TextView tvStatus, tvTime;
@@ -64,6 +63,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+        btnSetTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onClickSetTime();
+            }
+        });
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -78,21 +83,15 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Complements have been turned off", Toast.LENGTH_SHORT).show();
             }
         });
-        btnSetTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onClickSetTime();
-            }
-        });
     }
 
     @Override
     protected void onPause() {
         super.onPause();
 
+        btnSetTime.setOnClickListener(null);
         btnStart.setOnClickListener(null);
         btnStop.setOnClickListener(null);
-        btnSetTime.setOnClickListener(null);
     }
 
     /**
@@ -103,18 +102,14 @@ public class MainActivity extends AppCompatActivity {
         alarmStatus = UserPreferencesManager.getInstance().getAlarmStatus(MainActivity.this);
         setAlarmStatus(alarmStatus);
 
-
         //Get and set the alarm time
         alarmDate = UserPreferencesManager.getInstance().getAlarmTime(MainActivity.this);
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(alarmDate);
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
-
-        setAlarmTime(hour, minute);
+        setAlarmTime(getAlarmHour(), getAlarmMinute());
     }
 
+    /**
+     * On click function for setting the alarm time
+     */
     void onClickSetTime() {
         final Calendar calendar = Calendar.getInstance();
         int hourDisplay = calendar.get(Calendar.HOUR_OF_DAY) + 1;
@@ -142,14 +137,17 @@ public class MainActivity extends AppCompatActivity {
      * Starts the alarm
      */
     public void startAlarm() {
+        if(alarmStatus)
+            cancelAlarm();
+
         setAlarmStatus(true);
 
         //Set the time for the alarm
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) + 1);
-        calendar.set(Calendar.HOUR_OF_DAY, timerHours);
-        calendar.set(Calendar.MINUTE, timerMinutes);
+        calendar.set(Calendar.HOUR_OF_DAY, getAlarmHour());
+        calendar.set(Calendar.MINUTE, getAlarmMinute());
 
         alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
 
@@ -192,16 +190,18 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Sets the alarm time in user preferences and updates the UI
-     * @param hourMilitary
+     * @param hour the hour in military time
      * @param minute
      */
-    private void setAlarmTime(int hourMilitary, int minute) {
-        UserPreferencesManager.getInstance().setAlarmTime(MainActivity.this, hourMilitary + ":" + minute);
+    private void setAlarmTime(int hour, int minute) {
+        UserPreferencesManager.getInstance().setAlarmTime(MainActivity.this, hour + ":" + minute);
+
+        alarmDate = UserPreferencesManager.getInstance().getAlarmTime(MainActivity.this);
 
         //Update UI with alarm time
-        tvTime.setText("" + normalizeHour(hourMilitary) + ":" +
+        tvTime.setText("" + normalizeHour(hour) + ":" +
                 getReadableMinute(minute) + " " +
-                getAM_PM(hourMilitary));
+                getAM_PM(hour));
     }
 
     /**
@@ -236,6 +236,28 @@ public class MainActivity extends AppCompatActivity {
         String AM_PM = "AM";
         if(hourMilitary >= 12) AM_PM = "PM";
         return AM_PM;
+    }
+
+    /**
+     * Gets the current hour the alarm is set for
+     * @return the hour in military time
+     */
+    private int getAlarmHour() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.clear();
+        calendar.setTime(alarmDate);
+        return calendar.get(Calendar.HOUR_OF_DAY);
+    }
+
+    /**
+     * Gets the current minute the alarm is set for
+     * @return the minute
+     */
+    private int getAlarmMinute() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.clear();
+        calendar.setTime(alarmDate);
+        return calendar.get(Calendar.MINUTE);
     }
 
     /**
