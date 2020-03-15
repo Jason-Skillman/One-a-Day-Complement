@@ -145,7 +145,21 @@ public class MainActivity extends AppCompatActivity {
         //Set the time for the alarm
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) + 1);
+
+        //Calculate the day of the alarm
+        if(calendar.get(Calendar.HOUR_OF_DAY) > getAlarmHour()) {   //Hour has already passed
+            calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) + 1);
+        } else if(calendar.get(Calendar.HOUR_OF_DAY) == getAlarmHour()) {   //Hours are the same
+            if(calendar.get(Calendar.MINUTE) > getAlarmMinute()) {
+                calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) + 1);
+            } else {
+                calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR));
+            }
+        } else {    //Hour is in the future
+            calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR));
+        }
+
+        //Set the hour and minute of the alarm
         calendar.set(Calendar.HOUR_OF_DAY, getAlarmHour());
         calendar.set(Calendar.MINUTE, getAlarmMinute());
 
