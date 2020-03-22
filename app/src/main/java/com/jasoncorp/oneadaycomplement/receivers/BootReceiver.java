@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.icu.util.Calendar;
+import android.widget.Toast;
 
 import com.jasoncorp.oneadaycomplement.UserPreferencesManager;
 
@@ -35,7 +36,6 @@ public class BootReceiver extends BroadcastReceiver {
             calendar.setTimeInMillis(System.currentTimeMillis());
 
             //Calculate the day of the alarm
-            calendar.clear();
             if(calendar.get(Calendar.HOUR_OF_DAY) > hour) {   //Hour has already passed
                 calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) + 1);
             } else if(calendar.get(Calendar.HOUR_OF_DAY) == hour) {   //Hours are the same
